@@ -1,10 +1,15 @@
 const express = require("express");
-const app = express();
-const port = 8081;
-app.get("/", (req, res) => {
-  res.send("Hello World");
-});
+require("dotenv").config();
+const db = require("./src/lib/db");
+const app = require("./src/app");
+const port = process.env.PORT || 8080;
 
-app.listen(port, () => {
-  console.log(`Server running at http://localhosst:${port}`);
-});
+try {
+  db.connect();
+
+  app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
+  });
+} catch (error) {
+  console.error("Error de conexion: ", error);
+}
