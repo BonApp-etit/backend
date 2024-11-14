@@ -1,5 +1,6 @@
 const User = require("../models/user.model");
 const createError = require("http-errors");
+const encrypt = require("../lib/encrypt");
 
 async function create(userData) {
   const existUser = await User.findOne({
@@ -9,6 +10,8 @@ async function create(userData) {
     throw createError(409, "Email already in use");
   }
 
+  const password = await encrypt.encrypt(userData.password);
+  userData.password = password;
   const newUser = await User.create(userData);
   return newUser;
 }
