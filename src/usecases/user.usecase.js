@@ -16,6 +16,11 @@ async function create(userData) {
   return newUser;
 }
 
+async function getById(id) {
+  const userFound = User.findById(id);
+  return userFound;
+}
 module.exports = {
   create,
+  getById,
 };
