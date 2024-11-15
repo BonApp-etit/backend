@@ -13,6 +13,7 @@ async function create(userData) {
   const password = await encrypt.encrypt(userData.password);
   userData.password = password;
   const newUser = await User.create(userData);
+
   return newUser;
 }
 
