@@ -1,7 +1,7 @@
 const express = require("express");
 const userRouter = require("./routes/user.router");
 const authRouter = require("./routes/auth.router");
-const sendEmailRouter = require("./routes/sendEmail.router");
+const sendEmailRouter = require("./routes/verificationCode.router");
 const cors = require("cors");
 const app = express();
 

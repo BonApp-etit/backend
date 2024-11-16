@@ -2,26 +2,22 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 
 const schema = new mongoose.Schema({
-  username: {
-    type: String,
-    required: true,
-    min: 5,
-    max: 40,
-  },
   email: {
     type: String,
     required: true,
-
     validate: {
       validator: validator.isEmail,
-      message: "Correo electronico no valido",
+      message: "Correo electronico no valido para envio de codigo",
     },
   },
-
-  password: {
+  code: {
     type: String,
+    required: true,
+  },
+  expiresAt: {
+    type: Date,
     required: true,
   },
 });
 
-module.exports = mongoose.model("user", schema);
+module.exports = mongoose.model("VerificationCode", schema);
