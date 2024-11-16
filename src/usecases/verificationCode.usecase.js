@@ -3,6 +3,7 @@ require("dotenv").config();
 const { PASSWORDSMTP, USERSMTP } = process.env;
 const VerificationCode = require("../models/verificationCode.model");
 const generateRandomCode = require("../lib/crypto");
+const User = require("../models/user.model");
 
 async function storeCode(email) {
   const code = generateRandomCode();
@@ -12,6 +13,7 @@ async function storeCode(email) {
     email: email,
     code: code,
     expiresAt: expiresAt,
+    isVerified: false,
   });
 
   return code;
@@ -34,6 +36,7 @@ async function verifyCode(email, inputCode) {
 
   await VerificationCode.deleteOne({ email });
 
+  await User.findOneAndUpdate({ email }, { isVerified: true }, { new: true });
   return { valid: true };
 }
 

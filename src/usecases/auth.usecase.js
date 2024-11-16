@@ -9,6 +9,9 @@ async function login(email, password) {
   if (!user) {
     throw createError(401, "Invalid data");
   }
+  if (!user.isVerified) {
+    throw createError(401, "Account not verified"); //TODO Change the error code
+  }
   const isPasswordValid = await encrypt.compare(password, user.password);
   console.log(isPasswordValid);
 
