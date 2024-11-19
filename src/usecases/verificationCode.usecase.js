@@ -5,12 +5,11 @@ const VerificationCode = require("../models/verificationCode.model");
 const generateRandomCode = require("../lib/crypto");
 const User = require("../models/user.model");
 
-async function storeCode(email) {
+async function storeCode() {
   const code = generateRandomCode();
   const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
   await VerificationCode.create({
-    email: email,
     code: code,
     expiresAt: expiresAt,
     isVerified: false,
@@ -19,8 +18,8 @@ async function storeCode(email) {
   return code;
 }
 
-async function verifyCode(email, inputCode) {
-  const record = await VerificationCode.findOne({ email });
+async function verifyCode(inputCode) {
+  const record = await VerificationCode.findOne({ code: inputCode });
 
   if (!record) {
     return { valid: false, message: "Codigo no encontrado" };
@@ -34,10 +33,27 @@ async function verifyCode(email, inputCode) {
     return { valid: false, message: "Codigo invalido" };
   }
 
-  await VerificationCode.deleteOne({ email });
+  await VerificationCode.deleteOne({ code: inputCode });
 
-  await User.findOneAndUpdate({ email }, { isVerified: true }, { new: true });
-  return { valid: true };
+  return { valid: true, message: "Codigo validado" };
+}
+
+async function verifyUser(email) {
+  const isVerified = await User.findOneAndUpdate(
+    { email },
+    { isVerified: true },
+    { new: true }
+  );
+  if (isVerified === null) {
+    return {
+      valid: false,
+      message: "El usuario no se encuentra en la base de datos",
+    };
+  }
+  return {
+    valid: true,
+    message: "Usuario validado",
+  };
 }
 
 async function sendEmail(email, code) {
@@ -64,4 +80,4 @@ async function sendEmail(email, code) {
   });
 }
 
-module.exports = { sendEmail, storeCode, verifyCode };
+module.exports = { sendEmail, storeCode, verifyCode, verifyUser };

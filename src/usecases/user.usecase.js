@@ -7,7 +7,7 @@ async function create(userData) {
     email: userData.email,
   });
   if (existUser) {
-    throw createError(409, "Email already in use");
+    throw createError(409, "Ya existe una cuenta con este correo");
   }
 
   const password = await encrypt.encrypt(userData.password);
@@ -21,6 +21,7 @@ async function getById(id) {
   const userFound = User.findById(id);
   return userFound;
 }
+
 module.exports = {
   create,
   getById,

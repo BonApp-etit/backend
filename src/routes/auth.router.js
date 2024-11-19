@@ -13,6 +13,7 @@ router.get("/login", async (req, res) => {
   } catch (error) {
     res.status(error.status || 500),
       res.json({
+        success: false,
         error: error.message,
       });
   }
