@@ -6,23 +6,26 @@ const createError = require("http-errors");
 
 router.post("/", async (req, res) => {
   try {
-    const { email } = req.body;
+    const { email, variant } = req.body;
     const isValidate = validator.isEmail(email);
     if (!isValidate) {
       throw createError(400, "El email proporcionado no es valido");
     }
     const code = await verificationCodeUsecase.storeCode();
     console.log(code);
-    await verificationCodeUsecase.sendEmail(email, code);
+    await verificationCodeUsecase.sendEmail(email, code, variant);
     res.json({
       success: true,
-      message: "El codigo se ha enviado correctamente",
+      message:
+        variant === "resetPassword"
+          ? "Correo para reestablecer la contraseña enviado"
+          : "Correo para verificacion de cuenta enviado",
     });
   } catch (error) {
     res.status(error.status || 500);
     res.json({
       success: false,
-      error: error.message,
+      message: "Hubo un problema enviando el correo",
     });
   }
 });

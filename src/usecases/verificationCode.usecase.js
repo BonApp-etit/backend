@@ -56,7 +56,7 @@ async function verifyUser(email) {
   };
 }
 
-async function sendEmail(email, code) {
+async function sendEmail(email, code, variant) {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -67,9 +67,18 @@ async function sendEmail(email, code) {
   const mailOptions = {
     from: USERSMTP,
     to: email,
-    subject: "Codigo de verificacion",
-    text: `¡Hola! Este es tu codigo de verificacion: ${code} .`, // Contenido del correo
-    html: `<h1>Codigo de verificacion</h1><p>Tu codigo es: <strong>${code}</strong></p>`,
+    subject:
+      variant === "resetPassword"
+        ? "Restablecer contraseña"
+        : "Codigo de verificacion",
+    text:
+      variant === "resetPassword"
+        ? `¡Hola! Este es tu codigo de verificacion para reestablecer tu contraseña: ${code} .`
+        : `¡Hola! Este es tu codigo de verificacion para validar tu cuenta: ${code} .`, // Contenido del correo
+    html:
+      variant === "resetPassword"
+        ? `<h1>Codigo para reestablecer tu contraseña:</h1><p>Tu codigo es: <strong>${code}</strong></p>`
+        : `<h1>Codigo de verificacion para validar tu cuenta</h1><p>Tu codigo es: <strong>${code}</strong></p>`,
   };
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {

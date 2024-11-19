@@ -29,4 +29,9 @@ router.post("/login", async (req, res) => {
   }
 });
 
+router.post("/resetPassword", (req, res) => {
+  try {
+  } catch (error) {}
+});
+
 module.exports = router;
