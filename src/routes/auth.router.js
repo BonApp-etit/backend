@@ -2,19 +2,29 @@ const express = require("express");
 const router = express.Router();
 const authUsecase = require("../usecases/auth.usecase");
 
-router.get("/login", async (req, res) => {
+router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
+
     const token = await authUsecase.login(email, password);
+
     res.json({
       success: true,
-      data: { token },
+      message: {
+        data: { token },
+      },
     });
   } catch (error) {
-    res.status(error.status || 500),
+    let statusCode = error.status || 500;
+    let errorMessage = error.message;
+
+    if (errorMessage === "Account not verified") {
+      statusCode = 401;
+    }
+    res.status(statusCode || 500),
       res.json({
         success: false,
-        error: error.message,
+        message: errorMessage,
       });
   }
 });
