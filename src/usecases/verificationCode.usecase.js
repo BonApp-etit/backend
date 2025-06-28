@@ -4,6 +4,8 @@ const { PASSWORDSMTP, USERSMTP } = process.env;
 const VerificationCode = require("../models/verificationCode.model");
 const generateRandomCode = require("../lib/crypto");
 const User = require("../models/user.model");
+const jwt = require("../lib/jwt");
+const validator = require("validator");
 
 async function storeCode() {
   const code = generateRandomCode();
@@ -39,11 +41,15 @@ async function verifyCode(inputCode) {
 }
 
 async function verifyUser(email) {
+  if (!validator.isEmail(email)) {
+    throw createError(400, "El email proporcionado no es valido");
+  }
   const isVerified = await User.findOneAndUpdate(
     { email },
     { isVerified: true },
     { new: true }
   );
+
   if (isVerified === null) {
     return {
       valid: false,
@@ -56,7 +62,23 @@ async function verifyUser(email) {
   };
 }
 
+async function generateTemporaryToken(email) {
+  const payload = { email };
+  return jwt.sign(payload, "15min");
+}
+
+async function verifyTemporaryToken(token) {
+  try {
+    const decoded = jwt.verify(token);
+    return { valid: true, email: decoded.email };
+  } catch (error) {
+    return { valid: false, message: "Token invalido o expirado" };
+  }
+}
 async function sendEmail(email, code, variant) {
+  if (!validator.isEmail(email)) {
+    throw createError(400, "El email proporcionado no es valido");
+  }
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -80,13 +102,17 @@ async function sendEmail(email, code, variant) {
         ? `<h1>Codigo para reestablecer tu contraseña:</h1><p>Tu codigo es: <strong>${code}</strong></p>`
         : `<h1>Codigo de verificacion para validar tu cuenta</h1><p>Tu codigo es: <strong>${code}</strong></p>`,
   };
+
+  const token = await generateTemporaryToken(email);
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
       console.log("Error al enviar el correo:", error);
     } else {
       console.log("Correo enviado: " + info.response);
+      console.log(token);
     }
   });
+  return token;
 }
 
 module.exports = { sendEmail, storeCode, verifyCode, verifyUser };

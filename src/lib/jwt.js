@@ -2,8 +2,8 @@ const jsonwebtoken = require("jsonwebtoken");
 
 const { JWT_SECRET } = process.env;
 
-function sign(payload) {
-  return jsonwebtoken.sign(payload, JWT_SECRET, { expiresIn: "1d" });
+function sign(payload, expiration = "1d") {
+  return jsonwebtoken.sign(payload, JWT_SECRET, { expiresIn: expiration });
 }
 
 function verify(token) {
